@@ -1,0 +1,47 @@
+{
+  "name": "kuiper",
+  "version": "0.0.0",
+  "description": "A HTTP Client for Cloudflare Workers",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "jest",
+    "build": "rimraf dist && tsc --declaration --project tsconfig.build.json",
+    "prerelease": "npm run build",
+    "release": "np"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "author": "Sumito Izumita (@sizumita) mail@smdr.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sizumita/kuiper.git"
+  },
+  "keywords": [
+    "kuiper",
+    "cloudflare",
+    "cloudflare workers"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20221111.1",
+    "@types/jest": "^29.2.3",
+    "jest": "^29.3.1",
+    "jest-environment-miniflare": "^2.11.0",
+    "np": "^7.6.2",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^29.0.3",
+    "tsx": "^3.12.1",
+    "typescript": "^4.9.3",
+    "wrangler": "^2.0.28"
+  }
+}
