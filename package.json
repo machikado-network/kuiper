@@ -1,5 +1,5 @@
 {
-  "name": "kuiper",
+  "name": "@sizumita/kuiper",
   "version": "0.0.0",
   "description": "A HTTP Client for Cloudflare Workers",
   "main": "dist/index.js",
