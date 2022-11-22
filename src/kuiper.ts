@@ -54,7 +54,7 @@ async function post(url: string, json: object, options?: KuiperOptions): Promise
         method: "POST"
     }
     const headers = new Headers(newOptions.headers ?? [])
-    headers.append("Content-Type", "application/json")
+    headers.set("Content-Type", "application/json")
     newOptions.headers = Array.from(headers)
 
     return await kuiper(url, newOptions)
