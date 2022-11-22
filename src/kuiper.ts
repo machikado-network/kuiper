@@ -1,5 +1,6 @@
 import {isKuiperError, KuiperError} from "./error";
 
+
 export interface KuiperOptions {
     params?: { [p: string]: unknown } | URLSearchParams
 
@@ -9,7 +10,6 @@ export interface KuiperOptions {
     json?: object
     headers?: HeadersInit
 }
-
 
 
 /**
@@ -39,6 +39,14 @@ async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
     return response
 }
 
+
+function kuiperWrapped(fetcher: Fetcher): typeof kuiper {
+    return async (url, options) => {
+        return kuiper(url, {...options, fetcher})
+    }
+}
+
+
 async function post<T>(url: string, json: object, options?: KuiperOptions): Promise<T> {
     const response = await kuiper(url, {
         ...options,
@@ -49,7 +57,39 @@ async function post<T>(url: string, json: object, options?: KuiperOptions): Prom
 }
 
 
-export default Object.assign(kuiper, {
+function postWrapped(fetcher: Fetcher): typeof post {
+    return async (url, json, options) => {
+        return post(url, json, {...options, fetcher})
+    }
+}
+
+
+interface Kuiper {
+    (url: string, options?: KuiperOptions): Promise<Response>
+    post: typeof post
+    isKuiperError: typeof isKuiperError
+}
+interface KuiperWithWrapper extends Kuiper {
+    (url: string, options?: KuiperOptions): Promise<Response>
+    (fetcher: Fetcher): Kuiper
+}
+
+
+function wrapper(fetcher: Fetcher): Kuiper
+function wrapper(url: string, options?: KuiperOptions): Promise<Response>
+function wrapper(val: Fetcher | string, options?: KuiperOptions) {
+    if (typeof val === "string") return kuiper(val, options)
+    return Object.assign(
+        kuiperWrapped(val),
+        {
+            post: postWrapped(val),
+            isKuiperError,
+        }
+    )
+}
+
+
+export default Object.assign(wrapper, {
     post,
     isKuiperError
-})
+}) as KuiperWithWrapper
