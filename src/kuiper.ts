@@ -5,7 +5,7 @@ export interface KuiperOptions {
     params?: { [p: string]: unknown } | URLSearchParams
 
     fetcher?: Fetcher | null
-    method?: "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS"
+    method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
     body?: BodyInit | null
     json?: object
     headers?: HeadersInit
