@@ -47,7 +47,7 @@ function kuiperWrapped(fetcher: Fetcher): typeof kuiper {
 }
 
 
-async function post<T>(url: string, json: object, options?: KuiperOptions): Promise<T> {
+async function post(url: string, json: object, options?: KuiperOptions): Promise<Response> {
     const newOptions: KuiperOptions = {
         ...options,
         json,
@@ -57,8 +57,7 @@ async function post<T>(url: string, json: object, options?: KuiperOptions): Prom
     headers.append("Content-Type", "application/json")
     newOptions.headers = Array.from(headers)
 
-    const response = await kuiper(url, newOptions)
-    return await response.json<T>()
+    return await kuiper(url, newOptions)
 }
 
 

@@ -7,6 +7,6 @@ test("Test get", async () => {
 })
 
 test("Test post", async () => {
-    const response = await kuiper.post<{data: '{"key":"value"}'}>("https://httpbin.org/post", {key: "value"})
-    expect(response.data).toBe('{"key":"value"}')
+    const response = await kuiper.post("https://httpbin.org/post", {key: "value"})
+    expect(response.ok).toBe(true)
 })
