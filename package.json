@@ -1,5 +1,5 @@
 {
-  "name": "@sizumita/kuiper",
+  "name": "@machikado-network/kuiper",
   "version": "0.1.0",
   "description": "A HTTP Client for Cloudflare Workers",
   "main": "dist/index.js",
@@ -24,7 +24,7 @@
   "author": "Sumito Izumita (@sizumita) mail@smdr.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sizumita/kuiper.git"
+    "url": "https://github.com/machikado-network/kuiper.git"
   },
   "keywords": [
     "kuiper",
