@@ -49,9 +49,7 @@ async function post<T>(url: string, json: object, options?: KuiperOptions): Prom
 }
 
 
-const default_ = Object.assign(kuiper, {
+export default Object.assign(kuiper, {
     post,
     isKuiperError
 })
-
-export default default_
