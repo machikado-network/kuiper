@@ -1,5 +1,6 @@
 import {isKuiperError, KuiperError} from "./error";
 import {Cookies} from "./cookies";
+import {isUndefined} from "./util";
 
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
@@ -83,6 +84,7 @@ type MethodWrapped = (url: string, data?: Body, options?: KuiperOptions) => Prom
 
 function wrapped(method: Method, fetcher?: Fetcher): MethodWrapped {
     return async (url: string, data?: Body, options?: KuiperOptions) => {
+        url = !isUndefined(fetcher) && url.startsWith("/") ? `https://fetcher${url}` : url
         return await kuiper(url, makeOptionWithBody(method, {...options, fetcher}, data))
     }
 }
