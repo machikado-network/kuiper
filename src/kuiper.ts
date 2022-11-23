@@ -1,4 +1,5 @@
 import {isKuiperError, KuiperError} from "./error";
+import {Cookies} from "./cookies";
 
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
@@ -7,6 +8,7 @@ export type Body = object | null | string | FormData | Blob | URLSearchParams
 
 export interface KuiperOptions {
     params?: { [p: string]: unknown } | URLSearchParams
+    cookies?: { [p: string]: string }
 
     fetcher?: Fetcher | null
     method?: Method
@@ -23,17 +25,20 @@ export interface KuiperOptions {
  */
 async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
     let urlobj = new URL(url)
+    const headers = new Headers(options?.headers)
     if (!options) {
         return await fetch(url)
     }
-    if (typeof options.params !== "undefined") {
-        Object.entries(options.params).map(([key, value]) => urlobj.searchParams.set(key, value))
+    Object.entries(options.params ?? {}).forEach(([key, value]) => urlobj.searchParams.set(key, value))
+
+    if (typeof options.cookies !== "undefined") {
+        headers.set("cookie", new Cookies(Object.entries(options.cookies)).toString())
     }
 
     const response = await fetch(urlobj.toString(), {
         method: options.method,
         body: !options.json ? options.body : JSON.stringify(options.json),
-        headers: options.headers,
+        headers,
         fetcher: options.fetcher,
         cf: undefined,
     })

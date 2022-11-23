@@ -42,3 +42,28 @@ test("Test delete", async () => {
     const response = await kuiper.delete("https://httpbin.org/delete")
     expect(response.ok).toBe(true)
 })
+
+test("Test header", async () => {
+    const response = await kuiper("https://httpbin.org/get", {
+        headers: [
+            ["X-KEY", "Value"]
+        ]
+    })
+    expect(response.ok).toBe(true)
+
+    const result = await response.json<{headers: {"X-Key": "Value"}}>()
+    expect(result.headers["X-Key"]).toEqual("Value")
+})
+
+test("Test cookie", async () => {
+    const response = await kuiper("https://httpbin.org/cookies", {
+        cookies: {
+            key: "value",
+            dog: "cat",
+        }
+    })
+    expect(response.ok).toBe(true)
+
+    const result = await response.json<{cookies: {key: "value", dog: "cat"}}>()
+    expect(result.cookies).toEqual({key: "value", dog: "cat"})
+})
