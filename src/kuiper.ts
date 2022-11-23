@@ -18,11 +18,6 @@ export interface KuiperOptions {
 }
 
 
-/**
- * Request HTTP by fetch function.
- * @param url
- * @param options
- */
 async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
     let urlobj = new URL(url)
     const headers = new Headers(options?.headers)
@@ -107,7 +102,17 @@ interface Kuiper extends KuiperSources {
 }
 
 
+/**
+ * Return kuiper function with fetcher.
+ * If you use it, kuiper requests http request by using fetcher.
+ * @param fetcher
+ */
 function wrapper(fetcher: Fetcher): Kuiper
+/**
+ * Request HTTP Request by fetch.
+ * @param url request url
+ * @param options request options
+ */
 function wrapper(url: string, options?: KuiperOptions): Promise<Response>
 function wrapper(val: Fetcher | string, options?: KuiperOptions) {
     if (typeof val === "string") return kuiper(val, options)
