@@ -1,11 +1,15 @@
 import {isKuiperError, KuiperError} from "./error";
 
 
+type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
+export type Body = object | null | string | FormData | Blob | URLSearchParams
+
+
 export interface KuiperOptions {
     params?: { [p: string]: unknown } | URLSearchParams
 
     fetcher?: Fetcher | null
-    method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
+    method?: Method
     body?: BodyInit | null
     json?: object
     headers?: HeadersInit
@@ -40,6 +44,34 @@ async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
 }
 
 
+function makeOptionWithBody(method: Method, baseOptions?: KuiperOptions, body?: Body): KuiperOptions {
+    let options = {
+        ...baseOptions,
+        method
+    }
+    if (body === null) return options
+    switch (typeof body) {
+        case "object":
+            if (body instanceof FormData || body instanceof Blob || body instanceof URLSearchParams) {
+                options.body = body
+            } else {
+                options.json = body
+                const headers = new Headers(options.headers ?? [])
+                headers.set("Content-Type", "application/json")
+                options.headers = Array.from(headers)
+            }
+            break
+        case "undefined":
+        case "string":
+        default:
+            options.body = body
+            break
+    }
+
+    return options
+}
+
+
 function kuiperWrapped(fetcher: Fetcher): typeof kuiper {
     return async (url, options) => {
         return kuiper(url, {...options, fetcher})
@@ -47,76 +79,24 @@ function kuiperWrapped(fetcher: Fetcher): typeof kuiper {
 }
 
 
-async function post(url: string, data?: object | null | string | FormData | Blob | URLSearchParams, options?: KuiperOptions): Promise<Response> {
-    let newOptions: KuiperOptions = options ?? {}
+type MethodWrapped = (url: string, data?: Body, options?: KuiperOptions) => Promise<Response>
 
-    const headers = new Headers(newOptions.headers ?? [])
-
-    if (data === null) {
-        newOptions = {
-            ...newOptions,
-            method: "POST"
-        }
-    } else {
-        switch (typeof data) {
-            case "undefined":
-                newOptions = {
-                    ...options,
-                    method: "POST"
-                }
-                break
-            case "string":
-                newOptions = {
-                    ...options,
-                    method: "POST",
-                    body: data
-                }
-                break
-            case "object":
-                if (data instanceof FormData || data instanceof Blob || data instanceof URLSearchParams) {
-                    newOptions = {
-                        ...options,
-                        method: "POST",
-                        body: data
-                    }
-                } else {
-                    newOptions = {
-                        ...newOptions,
-                        method: "POST",
-                        json: data
-                    }
-                    headers.set("Content-Type", "application/json")
-                }
-                break
-            default:
-                newOptions = {
-                    ...options,
-                    method: "POST",
-                    body: data
-                }
-                break
-        }
-    }
-
-    newOptions.headers = Array.from(headers)
-
-    return await kuiper(url, newOptions)
-}
-
-
-function postWrapped(fetcher: Fetcher): typeof post {
-    return async (url, val, options) => {
-        return post(url, val, {...options, fetcher})
+function wrapped(method: Method, fetcher?: Fetcher): MethodWrapped {
+    return async (url: string, data?: Body, options?: KuiperOptions) => {
+        return await kuiper(url, makeOptionWithBody(method, {...options, fetcher}, data))
     }
 }
 
 
-interface Kuiper {
-    (url: string, options?: KuiperOptions): Promise<Response>
-    post: typeof post
+interface KuiperSources {
+    post: MethodWrapped
+    put: MethodWrapped
+    patch: MethodWrapped
+    delete: MethodWrapped
+    options: MethodWrapped
     isKuiperError: typeof isKuiperError
 }
-interface KuiperWithWrapper extends Kuiper {
+interface Kuiper extends KuiperSources {
     (url: string, options?: KuiperOptions): Promise<Response>
     (fetcher: Fetcher): Kuiper
 }
@@ -126,17 +106,29 @@ function wrapper(fetcher: Fetcher): Kuiper
 function wrapper(url: string, options?: KuiperOptions): Promise<Response>
 function wrapper(val: Fetcher | string, options?: KuiperOptions) {
     if (typeof val === "string") return kuiper(val, options)
+    const sources: KuiperSources = {
+        post: wrapped("POST", val),
+        put: wrapped("PUT", val),
+        patch: wrapped("PATCH", val),
+        delete: wrapped("DELETE", val),
+        options: wrapped("OPTIONS", val),
+        isKuiperError,
+    }
     return Object.assign(
         kuiperWrapped(val),
-        {
-            post: postWrapped(val),
-            isKuiperError,
-        }
+        sources
     )
 }
 
 
-export default Object.assign(wrapper, {
-    post,
+const sources: KuiperSources = {
+    post: wrapped("POST"),
+    put: wrapped("PUT"),
+    patch: wrapped("PATCH"),
+    delete: wrapped("DELETE"),
+    options: wrapped("OPTIONS"),
     isKuiperError
-}) as KuiperWithWrapper
+}
+
+
+export default Object.assign(wrapper, sources) as Kuiper
