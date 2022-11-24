@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type {Body, Method} from "../kuiper"
 import kuiper from "../kuiper"
 import {makeOptionWithBody} from "../util"
@@ -7,15 +6,15 @@ export class Service<T extends string, E extends Tasks<T>> {
     fetcher?: Fetcher
     baseUrl = ""
 
-    headers(route: T): [string, string][] {
+    headers(_route: T): [string, string][] {
         return []
     }
 
-    methods(route: T): Method {
+    methods(_route: T): Method {
         throw new Error("unimplemented")
     }
 
-    tasks(route: E): Parameters {
+    tasks(_route: E): Parameters {
         throw new Error("unimplemented")
     }
 
