@@ -1,6 +1,6 @@
 {
   "name": "@machikado-network/kuiper",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "A HTTP Client for Cloudflare Workers",
   "main": "dist/index.js",
   "module": "dist/index.js",
