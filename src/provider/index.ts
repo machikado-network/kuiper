@@ -15,7 +15,7 @@ export class Service<T extends string, E extends Tasks<T>> {
         throw new Error("unimplemented")
     }
 
-    tasks(route: T, data: E[T]["data"]): Parameters {
+    tasks(route: E): Parameters {
         throw new Error("unimplemented")
     }
 
@@ -32,13 +32,9 @@ export type Parameters = {
 }
 
 
-export type Task<T extends string, D> = {
-    type: T,
-    data: D
-}
+export type Task<T extends string, D> = [T, D]
 
-export type Tasks<T extends string> = { [k in T]: Task<k, unknown> }
-
+export type Tasks<T extends string> = { [k in T]: Task<k, unknown> }[T]
 
 export class Provider<T extends string, E extends Tasks<T>> {
     private service: Service<T, E>
@@ -47,24 +43,24 @@ export class Provider<T extends string, E extends Tasks<T>> {
         this.service = service
     }
 
-    async request(route: T, value: E[T]["data"]) {
+    async request(route: E) {
         const f = typeof this.service.fetcher === "undefined" ? kuiper : kuiper(this.service.fetcher)
 
-        const task = this.service.tasks(route, value)
-        let parsedRoute = route as string
+        const task = this.service.tasks(route)
+        let parsedRoutePath = route[0] as string
 
         // replace url params
         for (const [key, value] of Object.entries(task?.params ?? {})) {
-            parsedRoute = route.replaceAll(`{${key}}`, value)
+            parsedRoutePath = parsedRoutePath.replaceAll(`{${key}}`, value)
         }
-        const url = new URL(this.service.baseUrl + parsedRoute)
+        const url = new URL(this.service.baseUrl + parsedRoutePath)
 
         // set queries
         Object.entries(task?.queries ?? {}).map(([key, value]) => url.searchParams.set(key, value))
 
-        return await f(this.service.baseUrl + route,
-            makeOptionWithBody(this.service.methods(route), {
-                headers: this.service.headers(route),
+        return await f(this.service.baseUrl + parsedRoutePath,
+            makeOptionWithBody(this.service.methods(route[0]), {
+                headers: this.service.headers(route[0]),
             }, task?.body))
     }
 }
