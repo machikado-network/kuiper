@@ -1,9 +1,9 @@
 import {isKuiperError, KuiperError} from "./error";
 import {Cookies} from "./cookies";
-import {isUndefined} from "./util";
+import {isUndefined, makeOptionWithBody} from "./util";
 
 
-type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
+export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
 export type Body = object | null | string | FormData | Blob | URLSearchParams
 
 
@@ -42,34 +42,6 @@ async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
     if (!response.ok) throw new KuiperError(response)
 
     return response
-}
-
-
-function makeOptionWithBody(method: Method, baseOptions?: KuiperOptions, body?: Body): KuiperOptions {
-    let options = {
-        ...baseOptions,
-        method
-    }
-    if (body === null) return options
-    switch (typeof body) {
-        case "object":
-            if (body instanceof FormData || body instanceof Blob || body instanceof URLSearchParams) {
-                options.body = body
-            } else {
-                options.json = body
-                const headers = new Headers(options.headers ?? [])
-                headers.set("Content-Type", "application/json")
-                options.headers = Array.from(headers)
-            }
-            break
-        case "undefined":
-        case "string":
-        default:
-            options.body = body
-            break
-    }
-
-    return options
 }
 
 
