@@ -15,7 +15,7 @@ export class Service<T extends string, E extends Tasks<T>> {
         throw new Error("unimplemented")
     }
 
-    tasks(route: T, data: E[T]): Task {
+    tasks(route: T, data: E[T]["data"]): Parameters {
         throw new Error("unimplemented")
     }
 
@@ -25,14 +25,20 @@ export class Service<T extends string, E extends Tasks<T>> {
 }
 
 
-export type Task = {
+export type Parameters = {
     params?: { [p: string]: string },
     queries?: { [p: string]: string },
     body?: Body
 }
 
 
-export type Tasks<T extends string> = { [k in T]: unknown }
+export type Task<T extends string, D> = {
+    type: T,
+    data: D
+}
+
+export type Tasks<T extends string> = { [k in T]: Task<k, unknown> }
+
 
 export class Provider<T extends string, E extends Tasks<T>> {
     private service: Service<T, E>
@@ -41,7 +47,7 @@ export class Provider<T extends string, E extends Tasks<T>> {
         this.service = service
     }
 
-    async request(route: T, value: E[T]) {
+    async request(route: T, value: E[T]["data"]) {
         const f = typeof this.service.fetcher === "undefined" ? kuiper : kuiper(this.service.fetcher)
 
         const task = this.service.tasks(route, value)

@@ -1,6 +1,6 @@
 import type {Method} from "../kuiper"
-import type { Task, Tasks} from "./index"
-import {Provider, Service} from "./index"
+import type { Task, Tasks,Parameters} from "./index"
+import { Provider, Service} from "./index"
 
 enum ApiRoutes {
     testGet = "/get",
@@ -8,8 +8,8 @@ enum ApiRoutes {
 }
 
 interface ApiTasks extends Tasks<ApiRoutes> {
-    [ApiRoutes.testGet]: null
-    [ApiRoutes.testPost]: {key: string}
+    [ApiRoutes.testGet]: Task<ApiRoutes.testGet, null>
+    [ApiRoutes.testPost]: Task<ApiRoutes.testPost, {key: string}>
 }
 
 
@@ -29,7 +29,7 @@ class ApiService extends Service<ApiRoutes, ApiTasks> {
         }
     }
 
-    tasks(route: ApiRoutes, data: ApiTasks[ApiRoutes]): Task {
+    tasks(route: ApiRoutes, data: ApiTasks[ApiRoutes]["data"]): Parameters {
         switch (route) {
             case ApiRoutes.testGet:
                 return {}
