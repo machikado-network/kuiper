@@ -21,13 +21,11 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     },
     "./provider": {
       "types": "./dist/provider/index.d.ts",
-      "import": "./dist/provider/index.js",
-      "require": "./dist/provider/index.js"
+      "import": "./dist/provider/index.js"
     }
   },
   "author": "Sumito Izumita (@sizumita) mail@smdr.io",
