@@ -1,20 +1,20 @@
 import type {Body, Method} from "../kuiper"
 import kuiper from "../kuiper"
-import {makeOptionWithBody} from "../util"
+import {makeOptionWithBody, resolveIfPromise} from "../util"
 
 export class Service<T extends string, E extends Tasks<T>> {
     fetcher?: Fetcher
     baseUrl = ""
 
-    headers(_route: T): [string, string][] {
+    headers(_route: T): [string, string][] | Promise<[string, string][]> {
         return []
     }
 
-    methods(_route: T): Method {
+    methods(_route: T): Method | Promise<Method> {
         throw new Error("unimplemented")
     }
 
-    tasks(_route: E): Parameters {
+    tasks(_route: E): Parameters | Promise<Parameters> {
         throw new Error("unimplemented")
     }
 
@@ -45,7 +45,7 @@ export class Provider<T extends string, E extends Tasks<T>> {
     async request(route: E) {
         const f = typeof this.service.fetcher === "undefined" ? kuiper : kuiper(this.service.fetcher)
 
-        const task = this.service.tasks(route)
+        const task = await resolveIfPromise(this.service.tasks(route))
         let parsedRoutePath = route[0] as string
 
         // replace url params
@@ -58,8 +58,8 @@ export class Provider<T extends string, E extends Tasks<T>> {
         Object.entries(task?.queries ?? {}).map(([key, value]) => url.searchParams.set(key, value))
 
         return await f(this.service.baseUrl + parsedRoutePath,
-            makeOptionWithBody(this.service.methods(route[0]), {
-                headers: this.service.headers(route[0]),
+            makeOptionWithBody(await resolveIfPromise(this.service.methods(route[0])), {
+                headers: await resolveIfPromise(this.service.headers(route[0])),
             }, task?.body))
     }
 }

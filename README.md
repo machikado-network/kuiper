@@ -122,6 +122,8 @@ class ApiService extends Service<ApiRoutes, ApiTasks> {
 }
 ```
 
+You can use async function if you want in headers, methods, tasks.
+
 Third, create Provider instance and request with route and task:
 
 ```typescript

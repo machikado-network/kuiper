@@ -31,3 +31,7 @@ export function makeOptionWithBody(method: Method, baseOptions?: KuiperOptions, 
 
     return options
 }
+
+export async function resolveIfPromise<T>(maybePromise: T | Promise<T>) {
+    return maybePromise instanceof Promise ? await maybePromise : maybePromise
+}
