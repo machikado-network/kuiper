@@ -1,6 +1,6 @@
-import {isKuiperError, KuiperError} from "./error";
-import {Cookies} from "./cookies";
-import {isUndefined, makeOptionWithBody} from "./util";
+import {Cookies} from "./cookies"
+import {isKuiperError, KuiperError} from "./error"
+import {isUndefined, makeOptionWithBody} from "./util"
 
 
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS"
@@ -20,7 +20,7 @@ export interface KuiperOptions {
 
 
 async function kuiper(url: string, options?: KuiperOptions): Promise<Response> {
-    let urlobj = new URL(url)
+    const urlobj = new URL(url)
     const headers = new Headers(options?.headers)
     if (!options) {
         return await fetch(url)

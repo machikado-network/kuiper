@@ -1,4 +1,4 @@
-import kuiper from "./kuiper";
+import kuiper from "./kuiper"
 
 
 test("Test get", async () => {

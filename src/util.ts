@@ -1,12 +1,12 @@
-import type {Body, KuiperOptions, Method} from "./kuiper";
+import type {Body, KuiperOptions, Method} from "./kuiper"
 
-export function isUndefined(value: any) {
+export function isUndefined(value: unknown) {
     return typeof value === "undefined"
 }
 
 
 export function makeOptionWithBody(method: Method, baseOptions?: KuiperOptions, body?: Body): KuiperOptions {
-    let options = {
+    const options = {
         ...baseOptions,
         method
     }

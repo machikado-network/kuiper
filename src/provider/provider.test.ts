@@ -1,19 +1,22 @@
-import {Method} from "../kuiper";
-import {Provider, Service, Task, Tasks} from "./index";
+import type {Method} from "../kuiper"
+import type { Task, Tasks} from "./index"
+import {Provider, Service} from "./index"
 
 enum ApiRoutes {
-    testGet = "/get"
+    testGet = "/get",
+    testPost = "/post",
 }
 
 interface ApiTasks extends Tasks<ApiRoutes> {
     [ApiRoutes.testGet]: null
+    [ApiRoutes.testPost]: {key: string}
 }
 
 
 class ApiService extends Service<ApiRoutes, ApiTasks> {
     baseUrl = "https://httpbin.org"
 
-    headers(route: ApiRoutes): [string, string][] {
+    headers(_route: ApiRoutes): [string, string][] {
         return [["Content-Type", "application/json"]]
     }
 
@@ -21,6 +24,8 @@ class ApiService extends Service<ApiRoutes, ApiTasks> {
         switch (route) {
             case ApiRoutes.testGet:
                 return "GET"
+            case ApiRoutes.testPost:
+                return "POST"
         }
     }
 
@@ -28,6 +33,8 @@ class ApiService extends Service<ApiRoutes, ApiTasks> {
         switch (route) {
             case ApiRoutes.testGet:
                 return {}
+            case ApiRoutes.testPost:
+                return {body: data}
         }
     }
 }

@@ -1,9 +1,11 @@
-import kuiper, {Body, Method} from "../kuiper";
-import {isUndefined, makeOptionWithBody} from "../util";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import type {Body, Method} from "../kuiper"
+import kuiper from "../kuiper"
+import {makeOptionWithBody} from "../util"
 
 export class Service<T extends string, E extends Tasks<T>> {
     fetcher?: Fetcher
-    baseUrl: string = ""
+    baseUrl = ""
 
     headers(route: T): [string, string][] {
         return []
@@ -40,7 +42,7 @@ export class Provider<T extends string, E extends Tasks<T>> {
     }
 
     async request(route: T, value: E[T]) {
-        const f = isUndefined(this.service.fetcher) ? kuiper : kuiper(this.service.fetcher!)
+        const f = typeof this.service.fetcher === "undefined" ? kuiper : kuiper(this.service.fetcher)
 
         const task = this.service.tasks(route, value)
         let parsedRoute = route as string
